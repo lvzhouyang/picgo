@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sorted Data Visualization</title>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.bundle.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+</head>
+<body>
+  <div style="max-width: 600px; margin: auto;">
+    <canvas id="myChart"></canvas>
+    <p id="difference"></p>
+    <p id="total"></p>
+    <p></p>
+    <p></p>
+    <p>活动网址：<a href="https://lego.mgtv.com/act/3_8_3/20230414cf2023.html?act_name=20230414cf2023&share_id=ALV4XVJWN8H&source=share_20230414cf2023">乘风2023-宝藏指南</a>  （谁还不是个老二次元了，喂喂喂别再投错票了奥(＠_＠;)）</p>
+    <!-- <p>author: kako</p> -->
+  </div>
+
+  <script>
+    fetch('https://vipact.api.mgtv.com/api/v1/act/vote/charlist?act_name=20230414cf2023&count=50&invoker=mobile-zhifubao&_dx_seq_id=59a8d4cc-f895-f8cf-8e47-cf2f0dfba64c&v=v4')
+      .then(response => response.json())
+      .then((data) => {
+        // 提取角色列表数据
+        const characterList = data.data.character_list
+
+    // 按照票数从高到低对角色列表进行排序
+    characterList.sort((a, b) => b.vote_num - a.vote_num)
+
+    // 取前 10 名角色数据
+    const top5 = characterList.slice(0, 10)
+
+    // 使用 Chart.js 展示数据
+    const ctx = document.getElementById('myChart').getContext('2d')
+    const myChart = new Chart(ctx, {
+          type: 'horizontalBar',
+          data: {
+            labels: top5.map(item => item.char_name),
+            datasets: [{
+              label: 'Top 10 Characters by Votes(综艺-乘风2023)',
+              data: top5.map(item => item.vote_num),
+              backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)','rgba(255, 159, 64, 0.2)','#d2f1dc','#e0c7e3','#a8e8d2'],
+              borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)','rgb(255, 159, 64)','#516850','#846e89','ddeff6'],
+              borderWidth: 1,
+            }],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              xAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                },
+              }],
+            },
+          },
+    })
+
+    // 计算票数差距和百分比
+    const top1Votes = top5[0].vote_num
+    const top2Votes = top5[1].vote_num
+    const top3Votes = top5[2].vote_num
+    const top4Votes = top5[3].vote_num
+    const top5Votes = top5[4].vote_num
+
+    const top1_2_Diff = top1Votes - top2Votes
+    const top2_3_Diff = top2Votes - top3Votes
+    const top3_4_Diff = top3Votes - top4Votes
+    const top4_5_Diff = top4Votes - top5Votes
+
+    const top1_2_Percentage = ((top1_2_Diff / top2Votes) * 100).toFixed(2)
+    const top2_3_Percentage = ((top2_3_Diff / top3Votes) * 100).toFixed(2)
+    const top3_4_Percentage = ((top3_4_Diff / top4Votes) * 100).toFixed(2)
+    const top4_5_Percentage = ((top4_5_Diff / top5Votes) * 100).toFixed(2)
+
+    function getCurrentTime() {
+          const now = new Date()
+          const year = now.getFullYear()
+          const month = (now.getMonth() + 1).toString().padStart(2, '0')
+          const day = now.getDate().toString().padStart(2, '0')
+          const hours = now.getHours().toString().padStart(2, '0')
+          const minutes = now.getMinutes().toString().padStart(2, '0')
+          const seconds = now.getSeconds().toString().padStart(2, '0')
+          return `${year}.${month}.${day} ${hours}:${minutes}:${seconds}`
+    }
+
+    // 显示票数差距和百分比
+    const differenceElement = document.getElementById('difference')
+    differenceElement.innerHTML = `<p>Highest votes: ${top1Votes}, query time: ${getCurrentTime()}</p><p>Top 1 vs Top 2: +${top1_2_Diff} votes (+${top1_2_Percentage}%)</p> <p>Top 2 vs Top 3: +${top2_3_Diff} votes (+${top2_3_Percentage}%)</p> <p>Top 3 vs Top 4: +${top3_4_Diff} votes (+${top3_4_Percentage}%)</p> <p>Top 4 vs Top 5: +${top4_5_Diff} votes (+${top4_5_Percentage}%)</p>`
+
+    let sum=0;
+    for(var i=1;i<characterList.length;i++){
+       console.info(i +":"+ characterList [i].vote_num);
+       sum+=characterList [i].vote_num
+    }
+
+    const totalEmement = document.getElementById('total')
+    totalEmement.innerHTML = `<p>Top1: ${top1Votes}</p> <p>Sum(2~${characterList.length+1}): ${sum}</p>`
+  })
+  </script>
+</body>
+</html>
