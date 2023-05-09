@@ -98,8 +98,10 @@
        sum+=characterList [i].vote_num
     }
 
+    const top1_sum_Percentage = (((top1Votes-sum) / sum) * 100).toFixed(2)
+
     const totalEmement = document.getElementById('total')
-    totalEmement.innerHTML = `<p>Top1: ${top1Votes} votes</p> <p>Sum(2~${characterList.length+1}): ${sum} votes</p>`
+    totalEmement.innerHTML = `<p>Top1: ${top1Votes}</p> <p>Sum(2~${characterList.length+1}): ${sum}</p> <p>Top1 4 vs Sum(2~${characterList.length+1})：${top1_sum_Percentage}%</p>`
   })
   </script>
 </body>
